@@ -38,4 +38,4 @@ This is a fork of the original [AutoMDL](https://github.com/NvC-DmN-CH/AutoMDL) 
 
 ## Next steps
 
-* Ideally the plugin should be refactored to use TeamSpen's srctools lib or similar in the future, but no promises, I have no idea if I ever get to it. I may redo the game lookup at some point. 
+Ideally the plugin should be refactored to use TeamSpen's srctools lib or similar in the future, but no promises, I have no idea if I ever get to it. I may redo the game lookup at some point. 
