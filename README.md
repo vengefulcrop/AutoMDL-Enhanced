@@ -1,6 +1,6 @@
 # AutoMDL-Enhanced
 
-This is a fork of the original [AutoMDL](https://github.com/NvC-DmN-CH/AutoMDL) addon, with the addition of a few enhancements, like being able to compile multiple models from a single .blend file. It is meant primarily for compiling models from the same modular set (e.g., different wall pieces, variations of a prop) where core properties would typically be shared across all the pieces.
+This is a fork of the original [AutoMDL](https://github.com/NvC-DmN-CH/AutoMDL) addon, introducing a number of enhancements, like being able to compile multiple models from a single .blend file. It is meant primarily for compiling models from the same modular set (e.g., different wall pieces, variations of a prop) where core properties would typically be shared across all the pieces.
 
 **Note:** This enhanced version should work, but it hasn't been tested thoroughly. If you find any bugs, please report them by opening an issue here. Tested using Portal 2 and Blender 4.3.2.
 
