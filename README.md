@@ -1,100 +1,41 @@
+# AutoMDL-Enhanced
 
-*Requires Blender 4*
+This is a fork of the original [AutoMDL](https://github.com/NvC-DmN-CH/AutoMDL) addon, with the addition of a few enhancements, like being able to compile multiple models from a single .blend file. It is meant primarily for compiling models from the same modular set (e.g., different wall pieces, variations of a prop) where core properties would typically be shared across all the pieces.
 
-# Installation:
-In this page:
-- Click the green `<> Code` button at the top of the page -> `Download Zip`
+**Note:** This enhanced version should work, but it hasn't been tested thoroughly. If you find any bugs, please report them by opening an issue here. Tested using Portal 2 and Blender 4.3.2.
 
-In Blender:
-- Go to `Edit` > `Preferences`
-- Go to the `Add-ons` tab
-- Click `Install...` in the top-right of the window
-- Select the `AutoMDL-main.zip`, then click `Install Add-on`
-- Enable the checkbox to the left of the addon name
+## Location
 
-<br />    
+**`View3D > Sidebar > AutoMDL2`**
 
-# Fast iteration thanks to Hammer++'s hotloading ability:
+## Enhancements
 
-<img src="https://i.imgur.com/hqrkle7.gif" width="850"/>
+*   **Collection-Based Compilation:** Instead of selecting individual visual and physics meshes, you now select a single Blender **Collection**. The addon will automatically:
+    *   Find all valid visual mesh objects within the selected collection (ignoring objects starting with `COL_`).
+    *   Look for a sub-collection named `COLLISION` (case-insensitive).
+    *   Within the `COLLISION` sub-collection, find corresponding physics meshes named `COL_<VisMeshName>` (case-insensitive) for each visual mesh.
+    *   Compile each visual mesh (with its optional physics mesh) into a separate `.mdl` file named after the visual mesh object.
+*   **Automatic `$texturegroup` (Skins):** The addon automatically detects and generates `$texturegroup` QC commands for models with multiple skins based on a material naming convention:
+    *   Name your base material normally (e.g., `Metal`).
+    *   Name skin variants by appending `_skin<ID>` (e.g., `Metal_skin01`, `Metal_skin02`).
+    *   The addon requires the base material (e.g., `Metal`) to also exist on the object for skins to be detected.
+    *   Models using multiple base materials (e.g., `Metal`, `Wood`) can have skins. All materials ending in the same `_skin<ID>` (like `Metal_skin1` and `Wood_skin1`) will be grouped into the same skin family.
+    *   Handles missing variants for specific skins - if an object has 2 or more base materials, but a certain skin does not have a corresponding material for one or the other, it will use the corresponding base material instead.
 
-<br />
+*   **Object Origin for Export:** Models are now exported relative to their own Blender object origin, rather than the world origin.
+*   **Scale Factor:** A "QC Scale Factor" option has been added to the UI, allowing you to apply a `$scale` value during compilation directly from Blender (default is 100.0, for when you model in cm).
+*   **Automatic Smooth Shading for Collision:** Collision meshes (found via `COL_<VisMeshName>`) will automatically have smooth shading applied if needed before export.
+*   **Model Naming:** Compiled models (`.mdl`) use the name of the corresponding Blender *object*, not the name of the `.blend` file.
+*   **Hidden objects** are skipped during export.
 
-# Simplify workflow, as if the engine reads .blend files:
+## Limitations
 
-All the setup needed is that the .blend needs to be inside a models folder, or any subdirectory inside it!
+*   **Global Compile Options:** Several QC flags (`$staticprop`, `$mostlyopaque`, `$surfaceprop`) and the physics `mass` value are currently applied **globally** to *all* models compiled from the selected collection. They cannot be set individually per object within the collection via the UI.
 
-![compiling_showcase](https://github.com/NvC-DmN-CH/AutoMDL/assets/56874047/08823113-c867-47f7-a8df-f83e307508d4)
+## Known Issues
 
----
+*   **First-Time Compile Error with Dots in Names:** If an object within the selected collection has a dot (`.`) in its name, the *first* time you compile the collection after launching Blender, it may result in an error for that specific object (often showing an empty Studiomdl error message). Compiling the collection again *without restarting Blender* will usually succeed. Renaming the object to remove the dot is the current workaround.
 
-# Where the addon appears:
-The AutoMDL tab will appear in the Sidebar (press N)
+## Next steps
 
-
-<br />
-
-# How to use:
-
-- Save .blend file anywhere in a models folder
-
-- Select a visual mesh and hit `Update MDL`
-
-
-![e](https://github.com/NvC-DmN-CH/AutoMDL/assets/56874047/a3b37051-b459-4b11-a4c1-29990f4305c9)
-
-<br />
-
-By default, the materials search path mirrors the blend path:
-
-- if blend is `models/c17/post.blend`
-- mdl compiles at `models/c17/post.mdl`
-- engine will look for materials in `materials/models/c17/`
-
-Shows exactly where the VMTs are expected to be:
-
-![image](https://github.com/NvC-DmN-CH/AutoMDL/assets/56874047/a7fc3ac1-bd89-43dd-b2e6-a8ac54b2c22c)
-
-(In this case, there is 1 material called `metal`)
-
-<br />
-
-<br />
-
-You can also define a different search path if needed (or multiple search paths):
-
-![image](https://github.com/NvC-DmN-CH/AutoMDL/assets/56874047/426fa106-a894-4d1e-90b6-0ec98f02fc13)
-
-
----
-
-You can compile without a collision model. If you choose a mesh for it, collision specific options appear:
-
-![image](https://github.com/NvC-DmN-CH/AutoMDL/assets/56874047/0d9ca857-4a03-446e-b09d-b472b6660947)
-
-
-Some details: Automatically detects whether the collision should be $concave or not, and counts loose parts to set the correct amount of $maxconvexpieces
-
-
-## Misc:
-- For convenience, it also makes the appropriate folders in materials, and makes placeholder VMTs if none exist. This can be disabled in the addon preferences
-- Should automatically detect all source engine games installed in steam, and put them in the dropdown to easily choose a compiler from. But if that detection fails it will prompt you to manually input the path to a bin folder containing studiomdl.exe **(this should ideally never happen, if it does then please make an [issue](https://github.com/NvC-DmN-CH/AutoMDL/issues))**
-
-<br />
-
-## Todo:
-<sub>This is my first addon and my first time coding in python so the code is so so bad</sup>
-
-- I couldn't figure out how to add proper linux support, but apparently it should work under proton
-- Currently exporting freezes the UI because it waits for studiomdl.exe to finish
-- It would be really cool if it could open compiled models
-- No support for skins, bodygroups, lods, bones, or anything else yet really. This is just for making making static and physics props (dynamic too) since that's what I need the addon for.
-
-But if you have a suggestion or a bug, do make an [issue](https://github.com/NvC-DmN-CH/AutoMDL/issues)
-
-<br />
-
-## Note
-- I made this for making props in mind, for now anything else like characters is beyond the scope of this addon, sorry! (may add more features in the future though)
-
-Hopefully this addon inspires change in other more sophisticated tools to do things in a similar way
+* Ideally the plugin should be refactored to use TeamSpen's srctools lib or similar in the future, but no promises, I have no idea if I ever get to it. I may redo the game lookup at some point. 
